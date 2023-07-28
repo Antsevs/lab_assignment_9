@@ -91,10 +91,10 @@ void displayRecordsInHash(struct HashType *pHashArray, int hashSz)
         {
             continue;
         }
-        printf("index %d: ", i);
+        printf("index %d -> ", i);
         while (node != NULL)
         {
-            printf("ID: %d, Name: %c, Order:  %d\n", node->record.id, node->record.name, node->record.order);
+            printf("ID: %d, Name: %c, Order:  %d -> ", node->record.id, node->record.name, node->record.order);
             node = node->next;
         }
         printf("\n");
@@ -105,7 +105,7 @@ int main(void)
 {
     struct RecordType *pRecords;
     int recordSz = 0;
-    int hashSz = 32;
+    int hashSz = 16;
     struct HashType* hashTable = malloc(sizeof(struct HashType) * hashSz);
     for (int i = 0; i < hashSz; ++i)
     {
@@ -117,7 +117,7 @@ int main(void)
 
     for (int i = 0; i < recordSz; ++i)
     {
-        int index = hash(pRecords[i].id, hashSz);
+        int index = hash(pRecords[i].order, hashSz);
         struct Node* newNode = malloc(sizeof(struct Node));
         newNode->record = pRecords[i];
         newNode->next = hashTable[index].head;
