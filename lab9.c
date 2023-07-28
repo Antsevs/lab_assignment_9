@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 // RecordType
 struct RecordType
@@ -8,16 +9,22 @@ struct RecordType
 	int		order; 
 };
 
+struct Node 
+{
+    struct RecordType record;
+    struct Node* next;
+};
+
 // Fill out this structure
 struct HashType
 {
-
+    struct Node* head;
 };
 
 // Compute the hash function
-int hash(int x)
+int hash(int x, int size)
 {
-
+    return x % size;
 }
 
 // parses input file to an integer array
@@ -79,16 +86,59 @@ void displayRecordsInHash(struct HashType *pHashArray, int hashSz)
 
 	for (i=0;i<hashSz;++i)
 	{
-		// if index is occupied with any records, print all
+		struct Node* node = pHashArray[i].head;
+        if (node == NULL)
+        {
+            continue;
+        }
+        printf("index %d: ", i);
+        while (node != NULL)
+        {
+            printf("ID: %d, Name: %c, Order:  %d\n", node->record.id, node->record.name, node->record.order);
+            node = node->next;
+        }
+        printf("\n");
 	}
 }
 
 int main(void)
 {
-	struct RecordType *pRecords;
-	int recordSz = 0;
+    struct RecordType *pRecords;
+    int recordSz = 0;
+    int hashSz = 32;
+    struct HashType* hashTable = malloc(sizeof(struct HashType) * hashSz);
+    for (int i = 0; i < hashSz; ++i)
+    {
+        hashTable[i].head = NULL;
+    }
 
-	recordSz = parseData("input.txt", &pRecords);
-	printRecords(pRecords, recordSz);
-	// Your hash implementation
+    recordSz = parseData("input.txt", &pRecords);
+    printRecords(pRecords, recordSz);
+
+    for (int i = 0; i < recordSz; ++i)
+    {
+        int index = hash(pRecords[i].id, hashSz);
+        struct Node* newNode = malloc(sizeof(struct Node));
+        newNode->record = pRecords[i];
+        newNode->next = hashTable[index].head;
+        hashTable[index].head = newNode;
+    }
+
+    displayRecordsInHash(hashTable, hashSz);
+
+
+    free(pRecords);
+    for (int i = 0; i < hashSz; ++i)
+    {
+        struct Node* node = hashTable[i].head;
+        while (node != NULL)
+        {
+            struct Node* temp = node;
+            node = node->next;
+            free(temp);
+        }
+    }
+    free(hashTable);
+
+    return 0;
 }
